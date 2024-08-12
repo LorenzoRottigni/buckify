@@ -1,0 +1,12 @@
+FROM nginx:alpine
+
+WORKDIR /etc/nginx
+
+COPY nginx/nginx.conf .
+COPY nginx/conf.d/ ./conf.d/
+COPY bin/sh/build.sh .
+
+RUN mkdir -p /var/lib/nginx/cache
+RUN mkdir -p /var/lib/nginx/body_temp
+
+CMD [sh, /etc/nginx/build.sh]

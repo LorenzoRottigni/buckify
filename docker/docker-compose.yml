@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  nginx-alpha:
+    container_name: nginx-alpha
+    hostname: nginx-alpha
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    restart: always
+    env_file:
+      - ./../environments/.env.local
+    volumes:
+      - ./../certs/localhost/localhost.key:/etc/openssl/local/localhost.key
+      - ./../certs/localhost/localhost.pem:/etc/openssl/local/localhost.pem
+    ports:
+      - "5080:80"
+      - "5443:443"
+    command: [sh, /etc/nginx/build.sh]
+
+  nginx-beta:
+    container_name: nginx-beta
+    hostname: nginx-beta
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    restart: always
+    env_file:
+      - ./../environments/.env.local
+    volumes:
+      - ./../certs/localhost/localhost.key:/etc/openssl/local/localhost.key
+      - ./../certs/localhost/localhost.pem:/etc/openssl/local/localhost.pem
+    ports:
+      - "6080:80"
+      - "6443:443"
+    command: [sh, /etc/nginx/build.sh]
+
+  nginx-gamma:
+    container_name: nginx-gamma
+    hostname: nginx-gamma
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    restart: always
+    env_file:
+      - ./../environments/.env.local
+    volumes:
+      - ./../certs/localhost/localhost.key:/etc/openssl/local/localhost.key
+      - ./../certs/localhost/localhost.pem:/etc/openssl/local/localhost.pem
+    ports:
+      - "7080:80"
+      - "7443:443"
+    command: [sh, /etc/nginx/build.sh]
+

@@ -106,6 +106,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
+name = "buckify"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "tokio",
+]
+
+[[package]]
 name = "bytes"
 version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -296,9 +304,9 @@ version = "0.1.0"
 dependencies = [
  "axum",
  "base64",
+ "buckify",
  "serde",
  "serde_json",
- "buckify",
  "tokio",
 ]
 
@@ -529,14 +537,6 @@ name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
-
-[[package]]
-name = "buckify"
-version = "0.1.0"
-dependencies = [
- "axum",
- "tokio",
-]
 
 [[package]]
 name = "syn"

@@ -1,0 +1,9 @@
+location @maintenance {
+    root /var/docker/www/;
+    index courtesy.html;
+    try_files /courtesy.html =404;
+}
+
+location /courtesy.css {
+    alias /var/docker/www/courtesy.css;
+}

@@ -1,0 +1,42 @@
+http {
+    log_format main 'REMOTE ADDRESS: $remote_addr\n'
+        'REMOTE_USER: $remote_user\n'
+        'TIMESTAMP: [$time_local]\n'
+        'REQUEST: "$request"\n'
+        'STATUS: $status\n'
+        'BYTES_SENT: $body_bytes_sent\n'
+        'HTTP_REFERER: "$http_referer"\n'
+        'USER_AGENT: "$http_user_agent"\n'
+        'FORWARDED_FOR: "$http_x_forwarded_for"\n'
+        'REQUESTED_URI: "$uri"\n';
+
+    sendfile on;
+    ### improve performance for serving static files
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    client_max_body_size 50M;
+
+    gzip on;
+    gzip_types *;
+
+    # !important Docker embedded DNS server
+    resolver 127.0.0.11 ipv6=off;
+
+    proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=backcache:8m max_size=50m;
+    proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
+    proxy_cache_valid 200 302 10m;
+    proxy_cache_valid 404 1m;
+
+    client_body_temp_path /var/lib/nginx/body_temp;
+
+    # sets the default MIME type for files without a specific MIME type defined in the mime.types file
+    include /etc/nginx/mime.types;
+
+    # general binary data type used for files that don't fit into any of the more specific MIME types.
+    default_type application/octet-stream;
+
+    include conf.d/servers/ssl-redirect.conf;
+    include conf.d/servers/buckify.conf;
+}

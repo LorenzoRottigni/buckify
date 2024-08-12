@@ -1,0 +1,4 @@
+FROM ./Dockerfile.nginx
+
+# extend Dockerfile.nginx read engine to expose a
+# file system wrapper

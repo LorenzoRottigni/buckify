@@ -1,0 +1,8 @@
+FROM ./Dockerfile.nginx
+
+# - READ: extend Dockerfile.nginx to run in front others same extact same nginx:
+#   mutates nginx directive "try_files $uri $uri/ /404?nginx=not_found;"" to look for it on every worker node
+# - CREATE/DELETE/UPDATE:
+#    - Start a new DB transaction with the requested change
+#    - Proxy CDU request to the worker node 
+#    - Commit/rollback transaction on DB based of worker node fs operation result

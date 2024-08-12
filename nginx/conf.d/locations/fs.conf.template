@@ -1,0 +1,20 @@
+location ~* /fs/(.+?)/(.+\.(gif|jpg|jpeg|png|svg|css|json|js|ico|pdf|xml|webp|pxd|avif|db|gz|zip|glb|gltf|fbx|obj|mtl|webmanifest|md))$ {
+    root /var/data/buckify;
+
+    add_header 'Access-Control-Allow-Origin' '*';
+
+    autoindex on;
+    autoindex_exact_size off;
+    autoindex_format html;
+    autoindex_localtime on;
+
+    # set $file variable to the requested file without the /fs prefix
+    # e.g. /fs/bin/github/BankOfBrianza.webp -> /bin/github/BankOfBrianza.webp
+    # rewrite /fs/(.+)$ /$1 break;
+
+    expires 1d;
+    add_header Cache-Control "public, no-transform, must-revalidate, proxy-revalidate";
+    add_header Content-Type $content_type;
+
+    try_files $uri $uri/ /404?nginx=not_found;
+}
