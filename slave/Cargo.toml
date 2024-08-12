@@ -1,0 +1,7 @@
+[package]
+name = "slave"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+buckify = { path = "../src" }

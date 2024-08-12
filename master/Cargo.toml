@@ -1,0 +1,12 @@
+[package]
+name = "master"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7.5", features = ["multipart"] }
+base64 = "0.22.1"
+serde = "1.0.206"
+serde_json = "1.0.124"
+buckify = { path = "../src" }
+tokio = { version = "1.39.2", features = ["macros", "rt-multi-thread"] }
