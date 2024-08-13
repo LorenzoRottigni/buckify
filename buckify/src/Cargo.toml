@@ -10,3 +10,7 @@ path = "lib.rs"
 [dependencies]
 axum = "0.7.5"
 tokio = { version = "1.39.2", features = ["macros", "rt-multi-thread"] }
+diesel = { version = "2.2.0", features = ["sqlite","chrono","serde_json"] }
+libsqlite3-sys = { version = "0.28.0", features = ["bundled"] }
+dotenvy = "0.15"
+chrono = "0.4.38"
