@@ -1,11 +1,12 @@
 use crate::schema::resources;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Debug)]
 #[diesel(table_name = crate::schema::resources)]
 #[diesel(check_for_backend(diesel::sqlite::Sqlite))]
-#[derive(Debug)]
+#[derive(Serialize, Deserialize)]
 pub struct Resource {
     pub id: Option<i32>,
     pub created_at: NaiveDateTime,

@@ -12,5 +12,7 @@ tokio = { version = "1", features = ["full"] }
 dotenvy = "0.15" 
 diesel = { version = "2.2.0", features = ["sqlite","chrono","serde_json"] }
 libsqlite3-sys = { version = "0.28.0", features = ["bundled"] }
-chrono = "0.4.38"
+chrono = { version = "0.4.38", features = ["serde"] }
+serde = { version = "1.0.207", features = ["derive"] }
 serde_json = "1.0.124"
+anyhow = "1.0.86"

@@ -1,16 +1,21 @@
+use anyhow::{Context, Result};
 use axum::{extract::Multipart, response::Json};
-use base64::encode;
-use buckify::{establish_connection, extractors, handlers, FSPayload};
-use serde_json::{json, Value};
-use std::convert::TryInto;
-use std::io::{Error, ErrorKind};
+use buckify::{
+    establish_connection, extractors, handlers,
+    http::body::{response, MultipartFSPayload},
+    utils,
+};
+use diesel::prelude::*;
+use serde_json::Value;
 
 pub async fn create_resource(multipart: Multipart) -> Json<Value> {
     let conn = &mut establish_connection();
-    let result: Result<FSPayload, Box<dyn std::error::Error>> =
-        extractors::multipart(multipart).await;
 
-    match result {
+    let data: Result<MultipartFSPayload> = extractors::multipart(multipart)
+        .await
+        .map_err(|err| anyhow::anyhow!("Multipart extraction error: {}", err));
+
+    match data {
         Ok(payload) => {
             if let Some(target_path) = payload.path {
                 if let Some(bytes) = payload.file {
@@ -20,80 +25,51 @@ pub async fn create_resource(multipart: Multipart) -> Json<Value> {
                                 models::{NewResource, Resource},
                                 schema::resources,
                             };
-                            use diesel::prelude::*;
 
                             let size_i32: i32 = match file_data.size.try_into() {
                                 Ok(size) => size,
                                 Err(_) => {
                                     eprintln!("Size conversion failed.");
-                                    return Json(json!({
-                                        "success": "false",
-                                        "error": "Size conversion failed.",
-                                    }));
+                                    return response::<()>(Err(anyhow::anyhow!(
+                                        "Size conversion failed."
+                                    )));
                                 }
                             };
 
                             let resource = NewResource {
                                 path: &file_data.path,
-                                name: &file_data.path,
-                                slug: &file_data.path,
+                                name: &utils::extract_file_name(&file_data.path),
+                                slug: &utils::slugify(&file_data.path),
                                 size: size_i32,
                             };
 
-                            // Insert into the database
                             let inserted_resource = diesel::insert_into(resources::table)
                                 .values(&resource)
-                                .execute(conn);
+                                .execute(conn)
+                                .context("Error inserting resource");
 
-                            match inserted_resource {
-                                Ok(_) => println!("Resource inserted successfully."),
-                                Err(err) => eprintln!("Error inserting resource: {}", err),
+                            if let Err(err) = inserted_resource {
+                                eprintln!("{}", err);
+                                return response::<()>(Err(anyhow::anyhow!("{}", err)));
                             }
 
-                            // Retrieve the most recently inserted resource
                             let retrieved_resource = resources::table
                                 .order(resources::id.desc())
-                                .select(Resource::as_select()) // Ensure that `as_select()` is correct
-                                .first::<Resource>(conn);
+                                .select(Resource::as_select())
+                                .first::<Resource>(conn)
+                                .context("Error retrieving resource");
 
-                            println!("After save: {}", file_data.path);
-
-                            match retrieved_resource {
-                                Ok(resource) => println!("Retrieved resource: {:?}", resource),
-                                Err(err) => eprintln!("Error retrieving resource: {}", err),
-                            }
+                            response(retrieved_resource.map_err(|err| anyhow::anyhow!("{}", err)))
                         }
-                        Err(err) => {
-                            eprintln!("Error creating file: {}", err)
-                        }
+                        Err(err) => response::<()>(Err(anyhow::anyhow!("{}", err))),
                     }
-
-                    Json(json!({
-                        "success": "true",
-                        "path": target_path,
-                        "file": encode(&bytes),
-                    }))
                 } else {
-                    eprintln!("No file bytes provided.");
-                    Json(json!({
-                        "success": "false",
-                        "error": "No file bytes provided.",
-                    }))
+                    response::<()>(Err(anyhow::anyhow!("No file bytes provided.")))
                 }
             } else {
-                eprintln!("No path provided in payload.");
-                Json(json!({
-                    "success": "false",
-                    "error": "No path provided.",
-                }))
+                response::<()>(Err(anyhow::anyhow!("No path provided.")))
             }
         }
-        Err(err) => {
-            eprintln!("Error processing multipart data: {}", err);
-            Json(json!({
-                "success": "false",
-                "error": format!("Error processing multipart data: {}", err),
-            }))
-        }
+        Err(err) => response::<()>(Err(err)),
     }
 }

@@ -1,11 +1,10 @@
-use crate::FSPayload;
+use crate::http::body::MultipartFSPayload;
+use axum::extract::Multipart;
 use std::error::Error;
 use std::str;
 
-use axum::extract::Multipart;
-
-pub async fn multipart(mut multipart: Multipart) -> Result<FSPayload, Box<dyn Error>> {
-    let mut payload = FSPayload {
+pub async fn multipart(mut multipart: Multipart) -> Result<MultipartFSPayload, Box<dyn Error>> {
+    let mut payload = MultipartFSPayload {
         path: None,
         file: None,
     };
