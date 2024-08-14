@@ -11,11 +11,11 @@ use serde_json::Value;
 pub async fn create_resource(multipart: Multipart) -> Json<Value> {
     let conn = &mut establish_connection();
 
-    let data: Result<MultipartFSPayload> = extractors::multipart(multipart)
+    let input: Result<MultipartFSPayload> = extractors::multipart(multipart)
         .await
         .map_err(|err| anyhow::anyhow!("Multipart extraction error: {}", err));
 
-    match data {
+    match input {
         Ok(payload) => {
             if let Some(target_path) = payload.path {
                 if let Some(bytes) = payload.file {
